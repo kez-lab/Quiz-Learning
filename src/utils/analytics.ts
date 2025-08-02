@@ -1,35 +1,32 @@
-// Google Tag Manager 이벤트 전송 유틸리티
+// Google Analytics 4 이벤트 전송 유틸리티
 
 declare global {
   interface Window {
-    dataLayer: Record<string, unknown>[];
+    gtag: (...args: unknown[]) => void;
   }
 }
 
-export const gtmEvent = (eventName: string, parameters: Record<string, unknown> = {}) => {
-  if (typeof window !== 'undefined' && window.dataLayer) {
-    window.dataLayer.push({
-      event: eventName,
-      ...parameters,
-    });
+export const gtagEvent = (eventName: string, parameters: Record<string, unknown> = {}) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', eventName, parameters);
     
     // 개발 환경에서만 로그 출력
     if (process.env.NODE_ENV === 'development') {
-      console.log('GTM Event:', eventName, parameters);
+      console.log('GA4 Event:', eventName, parameters);
     }
   }
 };
 
 // 학습 플로우 이벤트들
 export const trackQuizListViewed = () => {
-  gtmEvent('quiz_list_viewed', {
+  gtagEvent('quiz_list_viewed', {
     event_category: 'engagement',
     event_label: 'quiz_discovery'
   });
 };
 
 export const trackArticleCardClicked = (quizId: number, quizTitle: string) => {
-  gtmEvent('article_card_clicked', {
+  gtagEvent('article_card_clicked', {
     event_category: 'engagement',
     quiz_id: quizId,
     quiz_title: quizTitle,
@@ -38,7 +35,7 @@ export const trackArticleCardClicked = (quizId: number, quizTitle: string) => {
 };
 
 export const trackArticleLinkOpened = (quizId: number, articleUrl: string) => {
-  gtmEvent('article_link_opened', {
+  gtagEvent('article_link_opened', {
     event_category: 'engagement',
     quiz_id: quizId,
     article_url: articleUrl,
@@ -47,7 +44,7 @@ export const trackArticleLinkOpened = (quizId: number, articleUrl: string) => {
 };
 
 export const trackArticleReadTime = (quizId: number, timeSpent: number) => {
-  gtmEvent('article_read_time', {
+  gtagEvent('article_read_time', {
     event_category: 'engagement',
     quiz_id: quizId,
     time_spent_seconds: timeSpent,
@@ -56,7 +53,7 @@ export const trackArticleReadTime = (quizId: number, timeSpent: number) => {
 };
 
 export const trackQuizStarted = (quizId: number, quizTitle: string) => {
-  gtmEvent('quiz_started', {
+  gtagEvent('quiz_started', {
     event_category: 'learning',
     quiz_id: quizId,
     quiz_title: quizTitle,
@@ -70,7 +67,7 @@ export const trackQuestionAnswered = (
   isCorrect: boolean, 
   timeTaken: number
 ) => {
-  gtmEvent('question_answered', {
+  gtagEvent('question_answered', {
     event_category: 'learning',
     quiz_id: quizId,
     question_id: questionId,
@@ -86,7 +83,7 @@ export const trackQuizCompleted = (
   totalQuestions: number,
   completionTime: number
 ) => {
-  gtmEvent('quiz_completed', {
+  gtagEvent('quiz_completed', {
     event_category: 'learning',
     quiz_id: quizId,
     score: score,
@@ -98,7 +95,7 @@ export const trackQuizCompleted = (
 };
 
 export const trackQuizAbandoned = (quizId: number, questionIndex: number) => {
-  gtmEvent('quiz_abandoned', {
+  gtagEvent('quiz_abandoned', {
     event_category: 'learning',
     quiz_id: quizId,
     questions_completed: questionIndex,
@@ -107,7 +104,7 @@ export const trackQuizAbandoned = (quizId: number, questionIndex: number) => {
 };
 
 export const trackExplanationViewed = (quizId: number, questionId: number) => {
-  gtmEvent('explanation_viewed', {
+  gtagEvent('explanation_viewed', {
     event_category: 'learning',
     quiz_id: quizId,
     question_id: questionId,
@@ -116,7 +113,7 @@ export const trackExplanationViewed = (quizId: number, questionId: number) => {
 };
 
 export const trackRetryQuiz = (quizId: number, attemptNumber: number) => {
-  gtmEvent('retry_quiz', {
+  gtagEvent('retry_quiz', {
     event_category: 'engagement',
     quiz_id: quizId,
     attempt_number: attemptNumber,
