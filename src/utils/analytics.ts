@@ -2,11 +2,11 @@
 
 declare global {
   interface Window {
-    dataLayer: any[];
+    dataLayer: Record<string, unknown>[];
   }
 }
 
-export const gtmEvent = (eventName: string, parameters: Record<string, any> = {}) => {
+export const gtmEvent = (eventName: string, parameters: Record<string, unknown> = {}) => {
   if (typeof window !== 'undefined' && window.dataLayer) {
     window.dataLayer.push({
       event: eventName,

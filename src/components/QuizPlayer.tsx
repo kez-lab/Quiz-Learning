@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Quiz, Question, QuizState } from '@/types/quiz';
+import { Quiz, QuizState } from '@/types/quiz';
 import quizzesData from '@/data/quizzes.json';
-import { saveProgress, getQuizProgress } from '@/utils/storage';
+import { saveProgress } from '@/utils/storage';
 import { 
   trackQuestionAnswered, 
   trackQuizCompleted, 
