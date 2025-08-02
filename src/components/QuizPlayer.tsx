@@ -82,21 +82,21 @@ export default function QuizPlayer({ quizId, onComplete, onBack }: QuizPlayerPro
   };
 
   const getOptionButtonClass = (optionIndex: number) => {
-    let baseClass = 'w-full p-4 text-left border rounded-lg transition-colors ';
+    let baseClass = 'w-full p-4 text-left border-2 rounded-lg transition-colors font-medium ';
     
     if (!quizState.showExplanation) {
       if (quizState.selectedAnswer === optionIndex) {
-        baseClass += 'border-blue-500 bg-blue-50 text-blue-700';
+        baseClass += 'border-blue-500 bg-blue-100 text-blue-900 dark:border-blue-400 dark:bg-blue-900/30 dark:text-blue-100';
       } else {
-        baseClass += 'border-gray-300 hover:border-gray-400 hover:bg-gray-50';
+        baseClass += 'border-gray-300 text-gray-800 hover:border-gray-400 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:border-gray-500 dark:hover:bg-gray-800';
       }
     } else {
       if (optionIndex === currentQuestion.correct) {
-        baseClass += 'border-green-500 bg-green-50 text-green-700';
+        baseClass += 'border-green-500 bg-green-100 text-green-900 dark:border-green-400 dark:bg-green-900/30 dark:text-green-100';
       } else if (quizState.selectedAnswer === optionIndex && optionIndex !== currentQuestion.correct) {
-        baseClass += 'border-red-500 bg-red-50 text-red-700';
+        baseClass += 'border-red-500 bg-red-100 text-red-900 dark:border-red-400 dark:bg-red-900/30 dark:text-red-100';
       } else {
-        baseClass += 'border-gray-300 bg-gray-50 text-gray-500';
+        baseClass += 'border-gray-300 bg-gray-50 text-gray-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400';
       }
     }
     
@@ -105,22 +105,22 @@ export default function QuizPlayer({ quizId, onComplete, onBack }: QuizPlayerPro
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6">
         {/* 헤더 */}
         <div className="flex justify-between items-center mb-6">
           <button
             onClick={onBack}
-            className="text-gray-600 hover:text-gray-800 flex items-center"
+            className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 flex items-center"
           >
             ← 뒤로가기
           </button>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-gray-500 dark:text-gray-400">
             {quizState.currentQuestionIndex + 1} / {quiz.questions.length}
           </div>
         </div>
 
         {/* 진행 바 */}
-        <div className="w-full bg-gray-200 rounded-full h-2 mb-6">
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-6">
           <div
             className="bg-blue-600 h-2 rounded-full transition-all duration-300"
             style={{
@@ -131,7 +131,7 @@ export default function QuizPlayer({ quizId, onComplete, onBack }: QuizPlayerPro
 
         {/* 질문 */}
         <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
             {currentQuestion.question}
           </h2>
         </div>
@@ -152,9 +152,9 @@ export default function QuizPlayer({ quizId, onComplete, onBack }: QuizPlayerPro
 
         {/* 설명 */}
         {quizState.showExplanation && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg animate-in slide-in-from-top-2 duration-300">
-            <h3 className="font-semibold text-blue-800 mb-2">💡 설명</h3>
-            <p className="text-blue-700">{currentQuestion.explanation}</p>
+          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg animate-in slide-in-from-top-2 duration-300">
+            <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">💡 설명</h3>
+            <p className="text-blue-700 dark:text-blue-300">{currentQuestion.explanation}</p>
           </div>
         )}
 
@@ -164,7 +164,7 @@ export default function QuizPlayer({ quizId, onComplete, onBack }: QuizPlayerPro
             <button
               onClick={handleSubmitAnswer}
               disabled={quizState.selectedAnswer === null}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg"
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg"
             >
               답안 제출
             </button>
@@ -180,7 +180,7 @@ export default function QuizPlayer({ quizId, onComplete, onBack }: QuizPlayerPro
 
         {/* 점수 표시 */}
         {quizState.showExplanation && (
-          <div className="mt-4 text-center text-gray-600">
+          <div className="mt-4 text-center text-gray-600 dark:text-gray-400">
             현재 점수: {quizState.score} / {quizState.currentQuestionIndex + 1}
           </div>
         )}
