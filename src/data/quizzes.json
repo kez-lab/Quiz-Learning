@@ -1,0 +1,53 @@
+[
+  {
+    "id": 1,
+    "title": "Compose의 Scoped Lifecycles",
+    "description": "Android Compose에서 컴포저블별 생명주기 제어에 대해 학습합니다.",
+    "difficulty": "intermediate",
+    "articleUrl": "https://proandroiddev.com/scoped-lifecycles-in-compose-71670142c19e",
+    "questions": [
+      {
+        "id": 1,
+        "type": "multiple_choice",
+        "question": "기존 LocalLifecycleOwner의 주요 특징 또는 한계점은 무엇입니까?",
+        "options": [
+          "각 컴포저블에 대해 새로운 LifecycleOwner를 생성합니다.",
+          "주로 MapView 및 비디오 플레이어에 사용됩니다.",
+          "주어진 Activity 내의 모든 컴포저블이 동일한 LifecycleOwner를 공유합니다.",
+          "실수로 인한 더블 탭을 자동으로 방지할 수 있습니다.",
+          "현재 전환 및 백 스택 상태에 따라 상태가 결정됩니다."
+        ],
+        "correct": 2,
+        "explanation": "LocalLifecycleOwner는 window.decorView에 의해 설정된 LifecycleOwner를 가져오기 때문에, 주어진 Activity 내의 모든 컴포저블이 동일한 LifecycleOwner를 공유합니다."
+      },
+      {
+        "id": 2,
+        "type": "multiple_choice",
+        "question": "단일 컴포저블 스택에서 전환(팝/푸시) 중 화면에 대한 바람직한 생명주기 상태는 무엇입니까?",
+        "options": [
+          "백 스택에 있고 전환 중일 때 RESUMED 상태입니다.",
+          "화면이 안정되었을 때만 STARTED 상태입니다.",
+          "화면이 아직 애니메이션으로 들어오고 있을 때 CREATED 상태입니다.",
+          "백 스택에 있고 '안정되었을' 때(전환이 실행되지 않음) RESUMED 상태, 백 스택에 있지만 전환 중일 때 STARTED 상태, 백 스택에 없지만 애니메이션으로 나갈 때 CREATED 상태입니다.",
+          "들어오는 컴포저블과 나가는 컴포저블 모두 잠시 RESUMED 상태에 진입합니다."
+        ],
+        "correct": 3,
+        "explanation": "원하는 생명주기 상태는 다음과 같습니다: 화면이 백 스택에 있고 '안정되었을' 때(전환이 실행되지 않음)에만 RESUMED, 백 스택에 있지만 전환 중일 때 STARTED, 더 이상 백 스택에 없지만(예: 팝된 상태) 여전히 애니메이션으로 나갈 때 CREATED입니다."
+      },
+      {
+        "id": 3,
+        "type": "multiple_choice",
+        "question": "LifecycleOwner 컴포저블은 어떻게 컴포저블별 생명주기 제어를 달성합니까?",
+        "options": [
+          "View의 findViewTreeLifecycleOwner()에서 viewTreeOwners를 검사함으로써.",
+          "Activity의 모든 컴포저블이 동일한 LifecycleOwner를 공유하도록 보장함으로써.",
+          "자체적으로 새로운 LifecycleOwner를 생성하고, DisposableEffect를 통해 자식의 생명주기를 부모의 생명주기와 연결하며, maxLifecycle에 의해 제한함으로써.",
+          "항상 maxLifecycle을 RESUMED로 설정함으로써.",
+          "window.decorView의 LifecycleOwner를 오버라이드함으로써."
+        ],
+        "correct": 2,
+        "explanation": "새로운 LifecycleOwner 컴포저블은 LifecycleOwner 내부에서 새로운 LifecycleOwner를 생성하고, DisposableEffect는 자식의 생명주기를 부모의 생명주기와 연결합니다. 또한 ChildLifecycleOwner는 maxLifecycle에 의해 제한되어 부모의 생명주기에 반응하여 자체 상태를 조정합니다."
+      }
+    ]
+  }
+]
