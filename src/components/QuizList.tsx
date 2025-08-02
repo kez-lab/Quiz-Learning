@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Quiz, UserProgress } from '@/types/quiz';
 import quizzesData from '@/data/quizzes.json';
 import { getProgress } from '@/utils/storage';
+import { trackQuizListViewed, trackArticleCardClicked } from '@/utils/analytics';
 
 interface QuizListProps {
   onSelectQuiz: (quizId: number) => void;
@@ -15,6 +16,7 @@ export default function QuizList({ onSelectQuiz }: QuizListProps) {
 
   useEffect(() => {
     setUserProgress(getProgress());
+    trackQuizListViewed();
   }, []);
 
   const getDifficultyColor = (difficulty: string) => {
@@ -39,6 +41,11 @@ export default function QuizList({ onSelectQuiz }: QuizListProps) {
     return userProgress.find(p => p.quizId === quizId);
   };
 
+  const handleQuizClick = (quiz: Quiz) => {
+    trackArticleCardClicked(quiz.id, quiz.title);
+    onSelectQuiz(quiz.id);
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -52,7 +59,7 @@ export default function QuizList({ onSelectQuiz }: QuizListProps) {
               className={`bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer p-6 transform hover:scale-105 hover:-translate-y-1 ${
                 isCompleted ? 'ring-2 ring-green-200 dark:ring-green-700 bg-gradient-to-br from-green-50 to-white dark:from-green-950 dark:to-gray-800' : 'hover:bg-gradient-to-br hover:from-blue-50 hover:to-white dark:hover:from-blue-950 dark:hover:to-gray-800'
               }`}
-              onClick={() => onSelectQuiz(quiz.id)}
+              onClick={() => handleQuizClick(quiz)}
             >
               <div className="flex justify-between items-start mb-3">
                 <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getDifficultyColor(quiz.difficulty)}`}>

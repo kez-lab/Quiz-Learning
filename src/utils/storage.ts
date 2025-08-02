@@ -9,7 +9,9 @@ export const getProgress = (): UserProgress[] => {
     const data = localStorage.getItem(STORAGE_KEY);
     return data ? JSON.parse(data) : [];
   } catch (error) {
-    console.error('Error reading progress from localStorage:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error reading progress from localStorage:', error);
+    }
     return [];
   }
 };
@@ -29,7 +31,9 @@ export const saveProgress = (progress: UserProgress): void => {
     
     localStorage.setItem(STORAGE_KEY, JSON.stringify(allProgress));
   } catch (error) {
-    console.error('Error saving progress to localStorage:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error saving progress to localStorage:', error);
+    }
   }
 };
 
@@ -44,6 +48,8 @@ export const clearAllProgress = (): void => {
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch (error) {
-    console.error('Error clearing progress from localStorage:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error clearing progress from localStorage:', error);
+    }  
   }
 };

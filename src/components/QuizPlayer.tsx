@@ -1,9 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Quiz, Question, QuizState } from '@/types/quiz';
+import { Quiz, QuizState } from '@/types/quiz';
 import quizzesData from '@/data/quizzes.json';
-import { saveProgress, getQuizProgress } from '@/utils/storage';
+import { saveProgress } from '@/utils/storage';
+import { 
+  trackQuestionAnswered, 
+  trackQuizCompleted, 
+  trackQuizAbandoned, 
+  trackExplanationViewed 
+} from '@/utils/analytics';
 
 interface QuizPlayerProps {
   quizId: number;
@@ -21,12 +27,22 @@ export default function QuizPlayer({ quizId, onComplete, onBack }: QuizPlayerPro
     userAnswers: [],
     score: 0,
   });
+  const [questionStartTime, setQuestionStartTime] = useState(Date.now());
+  const [quizStartTime] = useState(Date.now());
 
   useEffect(() => {
     const quizzes = quizzesData as Quiz[];
     const foundQuiz = quizzes.find(q => q.id === quizId);
     setQuiz(foundQuiz || null);
   }, [quizId]);
+
+  // 해설이 표시될 때 이벤트 추적
+  useEffect(() => {
+    if (quizState.showExplanation && quiz) {
+      const currentQuestion = quiz.questions[quizState.currentQuestionIndex];
+      trackExplanationViewed(quizId, currentQuestion.id);
+    }
+  }, [quizState.showExplanation, quizState.currentQuestionIndex, quizId, quiz]);
 
   if (!quiz) {
     return <div>퀴즈를 찾을 수 없습니다.</div>;
@@ -50,6 +66,10 @@ export default function QuizPlayer({ quizId, onComplete, onBack }: QuizPlayerPro
     const isCorrect = quizState.selectedAnswer === currentQuestion.correct;
     const newScore = isCorrect ? quizState.score + 1 : quizState.score;
     const newUserAnswers = [...quizState.userAnswers, quizState.selectedAnswer];
+    const timeTaken = Math.floor((Date.now() - questionStartTime) / 1000);
+
+    // 이벤트 트래킹
+    trackQuestionAnswered(quizId, currentQuestion.id, isCorrect, timeTaken);
 
     setQuizState(prev => ({
       ...prev,
@@ -62,17 +82,24 @@ export default function QuizPlayer({ quizId, onComplete, onBack }: QuizPlayerPro
   const handleNextQuestion = () => {
     if (isLastQuestion) {
       // 퀴즈 완료 시 진도 저장
+      const completionTime = Math.floor((Date.now() - quizStartTime) / 1000);
       const progress = {
         quizId: quizId,
         completedQuestions: Array.from({ length: quiz!.questions.length }, (_, i) => i),
         score: quizState.score,
         completedAt: new Date(),
       };
+      
+      // 이벤트 트래킹
+      trackQuizCompleted(quizId, quizState.score, quiz!.questions.length, completionTime);
+      
       saveProgress(progress);
       onComplete();
       return;
     }
 
+    // 다음 문제로 이동 시 시간 리셋
+    setQuestionStartTime(Date.now());
     setQuizState(prev => ({
       ...prev,
       currentQuestionIndex: prev.currentQuestionIndex + 1,
@@ -109,7 +136,10 @@ export default function QuizPlayer({ quizId, onComplete, onBack }: QuizPlayerPro
         {/* 헤더 */}
         <div className="flex justify-between items-center mb-6">
           <button
-            onClick={onBack}
+            onClick={() => {
+              trackQuizAbandoned(quizId, quizState.currentQuestionIndex);
+              onBack();
+            }}
             className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 flex items-center"
           >
             ← 뒤로가기
