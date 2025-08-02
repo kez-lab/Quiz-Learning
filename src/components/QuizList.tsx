@@ -56,10 +56,9 @@ export default function QuizList({ onSelectQuiz }: QuizListProps) {
           return (
             <div
               key={quiz.id}
-              className={`bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer p-6 transform hover:scale-105 hover:-translate-y-1 ${
+              className={`bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-6 transform hover:scale-105 hover:-translate-y-1 ${
                 isCompleted ? 'ring-2 ring-green-200 dark:ring-green-700 bg-gradient-to-br from-green-50 to-white dark:from-green-950 dark:to-gray-800' : 'hover:bg-gradient-to-br hover:from-blue-50 hover:to-white dark:hover:from-blue-950 dark:hover:to-gray-800'
               }`}
-              onClick={() => handleQuizClick(quiz)}
             >
               <div className="flex justify-between items-start mb-3">
                 <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getDifficultyColor(quiz.difficulty)}`}>
@@ -92,11 +91,17 @@ export default function QuizList({ onSelectQuiz }: QuizListProps) {
                 </div>
               )}
               
-              <button className={`w-full py-2 px-4 rounded-md transition-colors font-medium ${
-                isCompleted 
-                  ? 'bg-green-600 text-white hover:bg-green-700' 
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
-              }`}>
+              <button 
+                className={`w-full py-2 px-4 rounded-md transition-colors font-medium ${
+                  isCompleted 
+                    ? 'bg-green-600 text-white hover:bg-green-700' 
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                }`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleQuizClick(quiz);
+                }}
+              >
                 {isCompleted ? '다시 도전 →' : quiz.articleUrl ? '아티클 읽기 →' : '시작하기 →'}
               </button>
             </div>
