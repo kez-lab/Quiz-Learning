@@ -28,6 +28,7 @@ export default function RootLayout({
     <html lang="ko">
       <head>
         <Script
+          async
           src="https://www.googletagmanager.com/gtag/js?id=G-SB94Y95TBV"
           strategy="afterInteractive"
         />
