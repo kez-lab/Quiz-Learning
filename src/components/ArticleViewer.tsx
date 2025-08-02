@@ -1,6 +1,8 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Quiz } from '@/types/quiz';
+import { trackArticleLinkOpened, trackArticleReadTime, trackQuizStarted } from '@/utils/analytics';
 
 interface ArticleViewerProps {
   quiz: Quiz;
@@ -9,10 +11,26 @@ interface ArticleViewerProps {
 }
 
 export default function ArticleViewer({ quiz, onStartQuiz, onBack }: ArticleViewerProps) {
+  const [startTime] = useState(Date.now());
+
+  useEffect(() => {
+    return () => {
+      // 컴포넌트 언마운트 시 체류 시간 측정
+      const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+      trackArticleReadTime(quiz.id, timeSpent);
+    };
+  }, [quiz.id, startTime]);
+
   const handleOpenArticle = () => {
     if (quiz.articleUrl) {
+      trackArticleLinkOpened(quiz.id, quiz.articleUrl);
       window.open(quiz.articleUrl, '_blank');
     }
+  };
+
+  const handleStartQuiz = () => {
+    trackQuizStarted(quiz.id, quiz.title);
+    onStartQuiz();
   };
 
   return (
@@ -117,7 +135,7 @@ export default function ArticleViewer({ quiz, onStartQuiz, onBack }: ArticleView
           </div>
           
           <button
-            onClick={onStartQuiz}
+            onClick={handleStartQuiz}
             className="bg-green-600 text-white py-4 px-8 rounded-lg hover:bg-green-700 transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg font-semibold text-lg"
           >
             🚀 퀴즈 시작하기
