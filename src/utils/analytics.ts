@@ -12,7 +12,11 @@ export const gtmEvent = (eventName: string, parameters: Record<string, unknown> 
       event: eventName,
       ...parameters,
     });
-    console.log('GTM Event:', eventName, parameters);
+    
+    // 개발 환경에서만 로그 출력
+    if (process.env.NODE_ENV === 'development') {
+      console.log('GTM Event:', eventName, parameters);
+    }
   }
 };
 
