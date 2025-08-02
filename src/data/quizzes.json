@@ -49,5 +49,260 @@
         "explanation": "새로운 LifecycleOwner 컴포저블은 LifecycleOwner 내부에서 새로운 LifecycleOwner를 생성하고, DisposableEffect는 자식의 생명주기를 부모의 생명주기와 연결합니다. 또한 ChildLifecycleOwner는 maxLifecycle에 의해 제한되어 부모의 생명주기에 반응하여 자체 상태를 조정합니다."
       }
     ]
+  },
+  {
+    "id": 2,
+    "title": "Kotlin 코루틴 공식 가이드 완독하기 Part 1",
+    "description": "Kotlin 코루틴의 기본 개념과 GlobalScope, runBlocking, suspend 함수에 대해 학습합니다.",
+    "difficulty": "intermediate",
+    "articleUrl": "https://myungpyo.medium.com/reading-coroutine-official-guide-thoroughly-part-1-98f6e792bd5b",
+    "questions": [
+      {
+        "id": 1,
+        "type": "multiple_choice",
+        "question": "메인 함수에서 GlobalScope.launch {} 코드 블록을 사용하고, 2초간 대기와 같은 명시적인 지연 코드를 사용하지 않을 경우 프로그램의 동작으로 가장 적절한 것은 무엇입니까?",
+        "options": [
+          "코루틴이 완료될 때까지 메인 함수가 자동으로 대기합니다.",
+          "GlobalScope.launch {} 블록이 메인 스레드를 블록하여 코루틴 실행을 기다립니다.",
+          "메인 함수가 코루틴의 종료를 기다리지 않고 즉시 종료되어, 코루틴이 작업을 마치기 전에 프로그램이 끝날 수 있습니다.",
+          "GlobalScope.launch {} 블록은 스스로 자식 코루틴들의 완료를 기다립니다.",
+          "메모리 부족(Out of Memory) 오류가 발생합니다."
+        ],
+        "correct": 2,
+        "explanation": "GlobalScope.launch {} 코드 블록은 코루틴을 생성하는 빌더이며, 이렇게 생성된 코루틴은 호출(실행) 스레드를 블록하지 않습니다. 따라서 메인 함수에 명시적인 지연 코드가 없으면, 메인 함수가 코루틴의 완료를 기다리지 않고 종료되어 메인 스레드도 함께 종료되고, 결국 프로그램이 끝나 버립니다."
+      },
+      {
+        "id": 2,
+        "type": "multiple_choice",
+        "question": "자식 코루틴들의 완료를 기다리는 코루틴 빌더인 runBlocking{}과 coroutineScope{}의 주요 차이점은 무엇입니까?",
+        "options": [
+          "runBlocking{}은 현재 스레드를 블록하지 않는 반면, coroutineScope{}는 현재 스레드를 블록합니다.",
+          "runBlocking{}은 코루틴 안에서 사용이 권장되지 않는 반면, coroutineScope{}는 코루틴 내부에서만 사용될 수 있습니다.",
+          "runBlocking{}은 자식들의 종료를 기다리는 동안 현재 스레드를 블록하는 반면, coroutineScope{}는 자식들의 종료를 기다리는 동안 현재 스레드를 블록하지 않습니다.",
+          "coroutineScope{}는 명시적으로 job.join()을 호출해야 하지만, runBlocking{}은 그렇지 않습니다.",
+          "runBlocking{}은 항상 다른 코루틴 빌더보다 먼저 실행됩니다."
+        ],
+        "correct": 2,
+        "explanation": "runBlocking{}은 주어진 블록이 완료될 때까지 현재 스레드를 멈추는(블록하는) 새로운 코루틴을 생성하여 실행합니다. 반면, coroutineScope{}는 모든 자식 코루틴들이 끝날 때까지 종료되지 않는 스코프를 정의하지만, 자식들의 종료를 기다리는 동안 현재 스레드를 블록하지 않습니다."
+      },
+      {
+        "id": 3,
+        "type": "multiple_choice",
+        "question": "suspend 키워드를 사용하여 정의된 중단 함수(suspending function)의 특징으로 옳은 것은 무엇입니까?",
+        "options": [
+          "반드시 GlobalScope.launch {} 블록 내에서만 호출될 수 있습니다.",
+          "일반 함수와 마찬가지로 어떠한 제약 없이 다른 중단 함수를 호출할 수 있습니다.",
+          "delay()와 같은 다른 중단 함수들을 호출할 수 없으며, 일반적인 함수처럼 동작합니다.",
+          "이 함수 역시 중단 함수이기 때문에 특정 코루틴 컨텍스트 안에서 수행되며, 따라서 delay()와 같은 다른 중단 함수들을 호출할 수 있습니다.",
+          "이 함수는 항상 새로운 스레드를 생성하여 코드를 실행합니다."
+        ],
+        "correct": 3,
+        "explanation": "suspend 키워드를 함수명 앞에 붙여 만든 함수는 중단 함수이며, 이러한 함수는 delay()와 같은 다른 중단 함수들을 호출할 수 있습니다. 그 이유는 suspend 함수가 특정 코루틴 컨텍스트 안에서 수행되고, 코루틴 컨텍스트 안에서는 모든 중단 함수를 호출할 수 있기 때문입니다."
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Kotlin 코루틴 공식 가이드 완독하기 Part 2",
+    "description": "CoroutineContext와 CoroutineScope의 개념과 GlobalScope의 특성에 대해 학습합니다.",
+    "difficulty": "intermediate",
+    "articleUrl": "https://myungpyo.medium.com/reading-coroutine-official-guide-thoroughly-part-1-7ebb70a51910",
+    "questions": [
+      {
+        "id": 1,
+        "type": "multiple_choice",
+        "question": "코루틴을 이해하기 위해 먼저 이해해야 할 두 가지 주요 구성 요소는 무엇인가요?",
+        "options": [
+          "GlobalScope와 launch",
+          "CoroutineId와 CoroutineName",
+          "CoroutineContext와 CoroutineScope",
+          "ContinuationInterceptor와 CoroutineExceptionHandler",
+          "EmptyCoroutineContext와 CombinedContext"
+        ],
+        "correct": 2,
+        "explanation": "코루틴을 이해하기 위해서는 CoroutineContext와 CoroutineScope라는 두 가지 주된 요소를 먼저 이해해야 합니다. 이 두 요소는 코루틴의 핵심 구성 요소로, 코루틴이 어떻게 작동하고 관리되는지를 결정합니다."
+      },
+      {
+        "id": 2,
+        "type": "multiple_choice",
+        "question": "CoroutineScope에 대한 설명으로 옳은 것은 무엇인가요?",
+        "options": [
+          "CoroutineContext의 여러 요소들을 병합하는 컨테이너 역할을 한다.",
+          "코루틴 컨텍스트 요소 중 주어진 키에 해당하는 요소를 반환하는 메서드를 가지고 있다.",
+          "모든 코루틴 빌더가 이 인터페이스의 확장 함수로 정의되며, 코루틴 생성 시 소속된 CoroutineScope에 정의된 CoroutineContext를 기반으로 필요한 코루틴들을 생성해 낸다.",
+          "특별히 컨텍스트가 명시되지 않을 경우 사용되는 싱글톤 객체이다.",
+          "애플리케이션 프로세스와 동일한 생명주기를 가지며, EmptyCoroutineContext를 컨텍스트로 가진다."
+        ],
+        "correct": 2,
+        "explanation": "CoroutineScope는 기본적으로 CoroutineContext 하나만 멤버 속성으로 정의하고 있는 인터페이스이며, launch, async 등 모든 코루틴 빌더들이 CoroutineScope의 확장 함수로 정의됩니다. 이 빌더들이 코루틴을 생성할 때는 소속된 CoroutineScope에 정의된 CoroutineContext를 기반으로 필요한 코루틴들을 생성하게 됩니다."
+      },
+      {
+        "id": 3,
+        "type": "multiple_choice",
+        "question": "GlobalScope에 대한 설명으로 옳지 않은 것은 무엇인가요?",
+        "options": [
+          "싱글톤(Singleton) 객체이다.",
+          "그 컨텍스트로 EmptyCoroutineContext를 가진다.",
+          "애플리케이션 프로세스와 동일한 생명주기를 갖는다.",
+          "Activity와 같이 생명주기를 갖는 오브젝트에 바인딩 되어 사용된다.",
+          "GlobalScope.launch{}로 실행한 코루틴은 애플리케이션이 종료되지 않는 한 필요한 만큼 실행을 계속해 나간다."
+        ],
+        "correct": 3,
+        "explanation": "GlobalScope는 싱글톤 객체이며, 그 컨텍스트로 EmptyCoroutineContext를 가집니다. 이 EmptyCoroutineContext는 어떤 생명주기에 바인딩된 Job이 정의되어 있지 않기 때문에 애플리케이션 프로세스와 동일한 생명주기를 갖습니다. 따라서 Activity와 같이 특정 생명주기를 갖는 오브젝트에 바인딩 되어 사용된다는 설명은 옳지 않습니다."
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "title": "코루틴 공식 가이드 자세히 읽기 Part 1 - Dive 2",
+    "description": "코루틴이 경량의 스레드인 이유와 Continuation, Dispatcher의 동작 원리에 대해 학습합니다.",
+    "difficulty": "intermediate",
+    "articleUrl": "https://myungpyo.medium.com/%EC%BD%94%EB%A3%A8%ED%8B%B4-%EA%B3%B5%EC%8B%9D-%EA%B0%80%EC%9D%B4%EB%93%9C-%EC%9E%90%EC%84%B8%ED%9E%88-%EC%9D%BD%EA%B8%B0-part-1-dive-2-25b21741763a",
+    "questions": [
+      {
+        "id": 1,
+        "type": "multiple_choice",
+        "question": "코루틴이 \"경량의 스레드\"라고 불리는 주된 이유로 가장 적절한 것은 무엇인가요?",
+        "options": [
+          "코루틴은 항상 새로운 스레드를 생성하지 않으며, 단일 스레드 내에서만 동작하기 때문이다.",
+          "Continuation을 통해 코드 블록의 실행을 일시 중지하거나 재개할 수 있기 때문이다.",
+          "코루틴은 Dispatcher에 의해 실행되는 환경(스레드)이 결정될 수 있지만, 코루틴 그 자체로는 환경을 새로 구성하거나 변경하지 않기 때문이다.",
+          "GlobalScope를 사용하여 OOM(Out-Of-Memory) 없이 10만 개 이상의 코루틴을 실행할 수 있기 때문이다.",
+          "CoroutineScope에 속하여 부모로부터 CoroutineContext를 상속받기 때문이다."
+        ],
+        "correct": 2,
+        "explanation": "코루틴은 Dispatcher에 의해 실행되는 환경(Thread)이 결정될 수 있지만, 그 자체로는 환경을 새로 구성하거나 변경하지 않습니다. 바로 이것이 코루틴이 경량의 스레드라고 불리는 이유입니다. 다른 보기는 코루틴의 특성이나 장점이지만, \"경량의 스레드\"라고 불리는 직접적인 이유를 설명하는 것은 이 답입니다."
+      },
+      {
+        "id": 2,
+        "type": "multiple_choice",
+        "question": "Continuation에 대한 설명으로 옳은 것은 무엇인가요?",
+        "options": [
+          "코루틴의 생명주기를 관리하며, CoroutineScope의 멤버 속성으로 정의된다.",
+          "코루틴 내에서 스레드 전환이 필요한지 여부를 확인하는 함수(isDispatchNeeded())를 포함하는 인터페이스이다.",
+          "launch { }와 같은 빌더가 실행될 때, 실제 수행하고자 하는 로직이 담긴 코드 블록이 만들어지는 단위이며, 이를 통해 Dispatcher 변경이나 실행 유예와 같은 플로우 컨트롤이 용이해진다.",
+          "GlobalScope에서 사용되는 특별한 Dispatcher 구현체로, 큐를 이용한 이벤트 루프 형태이다.",
+          "코루틴이 실행되는 스코프의 CoroutineContext로부터 모든 요소를 상속받는 역할을 한다."
+        ],
+        "correct": 2,
+        "explanation": "launch { }와 같이 빌더를 실행했을 경우 마지막으로 넘긴 코드 블록, 즉 실제 수행하고자 하는 로직이 담긴 코드 블록은 Continuation이라는 단위로 만들어집니다. 또한, Continuation을 통해 dispatcher를 변경하거나 실행을 유예하는 등의 플로우 컨트롤이 용이해지는 이점이 있습니다."
+      },
+      {
+        "id": 3,
+        "type": "multiple_choice",
+        "question": "코루틴 빌더(launch { } 등)를 실행할 때, Dispatcher를 명시적으로 재정의하지 않는 경우의 동작으로 가장 적절한 것은 무엇인가요?",
+        "options": [
+          "기본적으로 ThreadPoolDispatcher를 사용하여 백그라운드 스레드에서 수행된다.",
+          "항상 UI Dispatcher를 상속받아 UI 스레드에서 수행된다.",
+          "GlobalScope의 BlockingEventLoop를 사용하여 이벤트 루프 기반으로 동작한다.",
+          "코루틴이 실행되는 스코프(부모)의 CoroutineContext에 정의된 Dispatcher를 그대로 상속받아 사용한다.",
+          "Continuation은 생성되지 않으며, 일반적인 함수 호출과 동일하게 즉시 실행된다."
+        ],
+        "correct": 3,
+        "explanation": "코루틴이 Dispatcher를 재정의하지 않으면 기본적으로 속해 있는 스코프로부터 모두 상속합니다. Dispatcher를 재정의하지 않고 UI Dispatcher를 그대로 상속받아 사용한다면 일반적인 함수 호출과 동일하게 수행되며, launch { } 코루틴 빌더가 Dispatcher를 재정의하지 않았기 때문에 현재 스코프(runBlocking)의 Dispatcher를 그대로 사용합니다."
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "title": "코루틴 공식 가이드 자세히 읽기 Part 1 - Dive 3",
+    "description": "suspend 함수의 컴파일러 처리 과정과 Continuation의 스택 관리, 예외 처리 메커니즘에 대해 학습합니다.",
+    "difficulty": "advanced",
+    "articleUrl": "https://myungpyo.medium.com/%EC%BD%94%EB%A3%A8%ED%8B%B4-%EA%B3%B5%EC%8B%9D-%EA%B0%80%EC%9D%B4%EB%93%9C-%EC%9E%90%EC%84%B8%ED%9E%88-%EC%9D%BD%EA%B8%B0-part-1-dive-3-b174c735d4fa",
+    "questions": [
+      {
+        "id": 1,
+        "type": "multiple_choice",
+        "question": "함수명 앞에 suspend 키워드를 붙였을 때, 코틀린 컴파일러가 해당 함수에 대해 수행하는 특별한 처리로 옳은 것은 무엇인가요?",
+        "options": [
+          "함수를 항상 새로운 스레드에서 실행되도록 강제한다.",
+          "함수의 반환 타입을 Unit으로 고정시키고, 어떤 파라미터도 추가하지 않는다.",
+          "함수를 인라인(inline) 함수로 변환하여 런타임 오버헤드를 줄인다.",
+          "함수를 GlobalScope에 바인딩하여 애플리케이션 종료 시에만 함께 종료되도록 한다.",
+          "Continuation 파라미터를 함수의 마지막 파라미터로 추가하고 반환 값을 Any?로 변경하며, 코루틴이나 다른 중단 함수 안에서만 호출될 수 있도록 제약한다."
+        ],
+        "correct": 4,
+        "explanation": "suspend 키워드가 붙은 함수들은 코틀린 컴파일러의 특별 대우를 받게 됩니다. 이 특별 대우는 CPS(Continuation-Passing-Style)로 사용될 수 있도록 Continuation 파라미터가 함수의 마지막 파라미터로 추가되며, 반환 값이 Any?로 변경되는 것을 의미합니다. 또한, 이렇게 생성된 중단 함수는 코루틴이나 다른 중단 함수 안에서만 호출될 수 있다는 제약이 생깁니다."
+      },
+      {
+        "id": 2,
+        "type": "multiple_choice",
+        "question": "중단(suspend) 함수가 코루틴에서 호출될 때, Continuation 객체의 주된 역할로 가장 적절한 것은 무엇인가요?",
+        "options": [
+          "코루틴의 실행 우선순위를 결정하고 스케줄링을 담당한다.",
+          "코루틴 내부에서 발생하는 모든 예외를 즉시 처리하여 상위 함수로 전파되지 않게 한다.",
+          "중단점에서 현재 실행 정보들을 캐시해 두었다가, 실행이 재개(Resume)되면 저장된 정보를 기반으로 실행을 다시 이어 나가게 한다.",
+          "코루틴이 Dispatcher를 변경해야 할 때, 새로운 스레드를 즉시 생성하여 할당한다.",
+          "GlobalScope의 기본 Dispatcher를 재정의하여 항상 메인 스레드에서 실행되도록 보장한다."
+        ],
+        "correct": 2,
+        "explanation": "중단 함수가 코루틴에서 호출되면 그 시점에서의 실행 정보들을 Continuation 객체로 만들어 캐시 해 두었다가, 실행이 재개(Resume)되면 저장된 실행 정보를 기반으로 실행을 다시 이어 나가게 됩니다. 이는 dispatcher 변경이나 실행 유예와 같은 플로우 컨트롤을 용이하게 합니다."
+      },
+      {
+        "id": 3,
+        "type": "multiple_choice",
+        "question": "중첩된 코루틴이나 중첩된 중단 함수들의 호출 스택 관리는 누가 담당하며, 예외 발생 시 어떻게 처리되나요?",
+        "options": [
+          "운영체제가 일반 함수와 동일하게 호출 스택을 관리하며, 예외는 운영체제 수준에서 즉시 종료된다.",
+          "각 중첩된 중단 함수는 독립적인 스레드 풀에서 실행되므로 스택 관리 없이 병렬적으로 처리된다.",
+          "가장 마지막에 호출된 중단 함수가 모든 스택 정보를 관리하고, 예외는 해당 함수 내에서만 처리된다.",
+          "CoroutineScope가 모든 호출 정보를 Job 객체에 기록하여 관리하며, 예외는 CoroutineExceptionHandler를 통해서만 처리된다.",
+          "코루틴 프레임워크가 Continuation을 스택 형태로 유지하여 호출 정보를 관리하며, 호출 스택상의 어떤 함수가 예외를 발생시키면 예외 정보를 최초 호출함수까지 Continuation을 통해 전달한다."
+        ],
+        "correct": 4,
+        "explanation": "일반적인 함수의 호출은 운영체제가 호출 스택 관리를 해주지만, 중첩된 코루틴이나 중첩된 중단 함수의 스택 관리는 코루틴 프레임워크가 담당합니다. 코루틴 프레임워크는 CPS 방식으로 호출 정보(Continuation)를 스택 형태로 유지하고 있다가, 호출 스택의 가장 마지막 함수가 실행을 종료하면 결과 값이 직전 호출 함수들로 전파되며 직전 함수를 재개합니다. 또한, 만약 스택상의 어떤 함수가 예외를 발생시키면 예외 정보를 최초 호출함수까지 Continuation을 통해 전달합니다."
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "title": "코루틴 디스패처 조금 더 살펴보기",
+    "description": "Dispatchers.Default와 Dispatchers.IO의 내부 구조, CoroutineScheduler와 Task 스케줄링 메커니즘에 대해 학습합니다.",
+    "difficulty": "advanced",
+    "articleUrl": "https://myungpyo.medium.com/%EC%BD%94%EB%A3%A8%ED%8B%B4-%EB%94%94%EC%8A%A4%ED%8C%A8%EC%B3%90-%EC%A1%B0%EA%B8%88-%EB%8D%94-%EC%82%B4%ED%8E%B4%EB%B3%B4%EA%B8%B0-92db58efca24",
+    "questions": [
+      {
+        "id": 1,
+        "type": "multiple_choice",
+        "question": "Kotlin JVM에서 Dispatchers.Default와 Dispatchers.IO에 대한 설명으로 가장 적절한 것은 무엇인가요?",
+        "options": [
+          "Dispatchers.Default는 UI 스레드에서만 작동하고, Dispatchers.IO는 백그라운드 스레드에서만 작동한다.",
+          "두 디스패처는 서로 다른 스케줄러를 사용하며, 독립적으로 코루틴을 관리한다.",
+          "Dispatchers.Default는 네트워크 I/O에, Dispatchers.IO는 CPU 연산에 주로 사용된다.",
+          "두 디스패처는 백그라운드 작업을 위해 사용되며, 내부적으로 CoroutineScheduler라는 동일한 스케줄러를 공유한다.",
+          "Dispatchers.IO는 Kotlin/Native에서 별도로 제공되지만, Dispatchers.Default는 제공되지 않는다."
+        ],
+        "correct": 3,
+        "explanation": "Kotlin JVM에서 Dispatchers.Default와 Dispatchers.IO는 모두 백그라운드 작업을 수행하기 위해 준비되어 있습니다. 또한, 이 두 디스패처는 CoroutineScheduler라는 동일한 스케줄러를 공유합니다. Default는 CPU 집약적 작업에, IO는 I/O 집약적 작업에 주로 사용됩니다."
+      },
+      {
+        "id": 2,
+        "type": "multiple_choice",
+        "question": "CoroutineScheduler가 Dispatchers.Default와 Dispatchers.IO를 통해 요청된 코루틴들을 Task 형태로 스케줄링할 때, 이 Task들을 내부적으로 구분하고 처리하는 방식에 대한 설명으로 옳은 것은 무엇인가요?",
+        "options": [
+          "모든 Task는 동일한 TaskContext를 가지며, CoroutineScheduler 내부에서 동적으로 CPU/I/O 유형을 파악한다.",
+          "Dispatchers.Default의 Task는 LimitingDispatcher를 통해 병렬 실행 수 제한을 받고, Dispatchers.IO의 Task는 즉시 CoroutineScheduler로 전달된다.",
+          "Dispatchers.IO의 Task는 TASK_NON_BLOCKING으로 마킹되어 I/O 전용 큐에서 처리되고, Default의 Task는 별도의 처리 없이 즉시 실행된다.",
+          "Dispatchers.Default의 Task는 NonBlockingContext(TASK_NON_BLOCKING)로 표시되어 CPU intensive 작업을 위한 큐에서, Dispatchers.IO의 Task는 ProbablyBlockingContext(TASK_PROBABLY_BLOCKING)로 표시되어 I/O intensive 작업을 위한 큐에서 처리된다.",
+          "TaskContext의 afterTask() 함수는 NON_BLOCKING Task의 경우에만 작동하여 LimitingDispatcher에 추가 작업을 공급한다."
+        ],
+        "correct": 3,
+        "explanation": "CoroutineScheduler로 요청된 코루틴들이 Task 형태로 래핑되어 처리됩니다. Dispatchers.Default 디스패처를 사용하는 코루틴은 NonBlockingContext(TASK_NON_BLOCKING)로 표시되어 CPU intensive 한 작업들을 위한 큐에서 처리되고, Dispatchers.IO 디스패처를 사용하는 코루틴은 ProbablyBlockingContext(TASK_PROBABLY_BLOCKING)로 표시되어 I/O intensive 한 작업들을 위한 큐에서 처리됩니다."
+      },
+      {
+        "id": 3,
+        "type": "multiple_choice",
+        "question": "CoroutineScheduler 내에서 코루틴 Task들을 실행하는 Worker들에 대한 설명으로 옳지 않은 것은 무엇인가요?",
+        "options": [
+          "Worker는 실제 Java Thread이며, 작업이 없으면 LockSupport.parkNanos()를 사용하여 TIMED_WAITING 상태로 진입한다.",
+          "작업을 마친 Worker는 parkedWorkerStack에 LIFO 방식으로 푸시되어 대기하며, 이는 메모리 사용 효율과 참조 지역성 이점을 제공한다.",
+          "각 Worker는 SPMC(Single-Producer, Multi-Consumer) 자료구조로 구현된 WorkQueue라는 자체 작업 큐를 가지고 있다.",
+          "WorkQueue의 Single-Producer는 CoroutineScheduler이고, Multi-Consumer는 큐를 소유한 Worker와 LimitingDispatcher이다.",
+          "Task Stealing Algorithm을 통해 바쁘거나 블로킹된 Worker의 Task를 다른 Worker가 가져가 대신 수행할 수 있다."
+        ],
+        "correct": 3,
+        "explanation": "Worker는 내부적으로 WorkQueue라는 별도의 작업 큐를 가지고 있으며, 이 큐는 SPMC (Single-Producer, Multi-Consumer) 자료구조를 사용합니다. 이때, Producer는 해당 큐를 소유한 Worker 자신이며, Multi-Consumer는 큐를 소유한 Worker와 Task Stealing Algorithm을 통해 다른 Worker들도 포함합니다. CoroutineScheduler는 전체적인 스케줄러이지 개별 WorkQueue의 Producer가 아니며, LimitingDispatcher는 CoroutineScheduler에 Task를 요청하는 상위 개념이지 WorkQueue의 Consumer가 아닙니다."
+      }
+    ]
   }
 ]
