@@ -36,6 +36,14 @@ export default function QuizPlayer({ quizId, onComplete, onBack }: QuizPlayerPro
     setQuiz(foundQuiz || null);
   }, [quizId]);
 
+  // 해설이 표시될 때 이벤트 추적
+  useEffect(() => {
+    if (quizState.showExplanation && quiz) {
+      const currentQuestion = quiz.questions[quizState.currentQuestionIndex];
+      trackExplanationViewed(quizId, currentQuestion.id);
+    }
+  }, [quizState.showExplanation, quizState.currentQuestionIndex, quizId, quiz]);
+
   if (!quiz) {
     return <div>퀴즈를 찾을 수 없습니다.</div>;
   }
@@ -62,7 +70,6 @@ export default function QuizPlayer({ quizId, onComplete, onBack }: QuizPlayerPro
 
     // 이벤트 트래킹
     trackQuestionAnswered(quizId, currentQuestion.id, isCorrect, timeTaken);
-    trackExplanationViewed(quizId, currentQuestion.id);
 
     setQuizState(prev => ({
       ...prev,
