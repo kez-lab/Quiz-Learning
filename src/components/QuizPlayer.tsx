@@ -108,112 +108,193 @@ export default function QuizPlayer({ quizId, onComplete, onBack }: QuizPlayerPro
     }));
   };
 
-  const getOptionButtonClass = (optionIndex: number) => {
-    let baseClass = 'w-full p-4 text-left border-2 rounded-lg transition-colors font-medium ';
-    
-    if (!quizState.showExplanation) {
-      if (quizState.selectedAnswer === optionIndex) {
-        baseClass += 'border-blue-500 bg-blue-100 text-blue-900 dark:border-blue-400 dark:bg-blue-900/30 dark:text-blue-100';
-      } else {
-        baseClass += 'border-gray-300 text-gray-800 hover:border-gray-400 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:border-gray-500 dark:hover:bg-gray-800';
-      }
-    } else {
-      if (optionIndex === currentQuestion.correct) {
-        baseClass += 'border-green-500 bg-green-100 text-green-900 dark:border-green-400 dark:bg-green-900/30 dark:text-green-100';
-      } else if (quizState.selectedAnswer === optionIndex && optionIndex !== currentQuestion.correct) {
-        baseClass += 'border-red-500 bg-red-100 text-red-900 dark:border-red-400 dark:bg-red-900/30 dark:text-red-100';
-      } else {
-        baseClass += 'border-gray-300 bg-gray-50 text-gray-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400';
-      }
-    }
-    
-    return baseClass;
-  };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6">
-        {/* 헤더 */}
-        <div className="flex justify-between items-center mb-6">
-          <button
-            onClick={() => {
-              trackQuizAbandoned(quizId, quizState.currentQuestionIndex);
-              onBack();
-            }}
-            className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 flex items-center"
-          >
-            ← 뒤로가기
-          </button>
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            {quizState.currentQuestionIndex + 1} / {quiz.questions.length}
+    <div className="max-w-3xl mx-auto">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+        {/* Enhanced Header */}
+        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6">
+          <div className="flex justify-between items-center mb-4">
+            <button
+              onClick={() => {
+                trackQuizAbandoned(quizId, quizState.currentQuestionIndex);
+                onBack();
+              }}
+              className="flex items-center space-x-2 text-white/80 hover:text-white transition-colors font-medium"
+            >
+              <span>←</span>
+              <span>나가기</span>
+            </button>
+            <div className="text-white">
+              <div className="text-sm opacity-80">진행률</div>
+              <div className="text-lg font-bold">
+                {quizState.currentQuestionIndex + 1} / {quiz.questions.length}
+              </div>
+            </div>
+          </div>
+          
+          {/* Progress Bar */}
+          <div className="w-full bg-white/20 rounded-full h-3 overflow-hidden">
+            <div
+              className="bg-white h-3 rounded-full transition-all duration-500 ease-out shadow-sm"
+              style={{
+                width: `${((quizState.currentQuestionIndex + 1) / quiz.questions.length) * 100}%`
+              }}
+            ></div>
+          </div>
+          
+          {/* Quiz Title */}
+          <div className="mt-4">
+            <h1 className="text-white font-bold text-lg opacity-90">{quiz.title}</h1>
           </div>
         </div>
 
-        {/* 진행 바 */}
-        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-6">
-          <div
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-            style={{
-              width: `${((quizState.currentQuestionIndex + 1) / quiz.questions.length) * 100}%`
-            }}
-          ></div>
-        </div>
 
-        {/* 질문 */}
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
-            {currentQuestion.question}
-          </h2>
-        </div>
-
-        {/* 선택지 */}
-        <div className="space-y-3 mb-6">
-          {currentQuestion.options.map((option, index) => (
-            <button
-              key={index}
-              onClick={() => handleAnswerSelect(index)}
-              className={`${getOptionButtonClass(index)} transform transition-all duration-200 hover:scale-102 active:scale-98`}
-              disabled={quizState.showExplanation}
-            >
-              {option}
-            </button>
-          ))}
-        </div>
-
-        {/* 설명 */}
-        {quizState.showExplanation && (
-          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg animate-in slide-in-from-top-2 duration-300">
-            <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">💡 설명</h3>
-            <p className="text-blue-700 dark:text-blue-300">{currentQuestion.explanation}</p>
+        {/* Question Section */}
+        <div className="p-6">
+          <div className="mb-8">
+            <div className="flex items-center space-x-2 mb-4">
+              <span className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center font-bold text-sm">
+                Q{quizState.currentQuestionIndex + 1}
+              </span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                {currentQuestion.type === 'multiple_choice' ? '객관식' : 'OX 문제'}
+              </span>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 leading-relaxed">
+              {currentQuestion.question}
+            </h2>
           </div>
-        )}
 
-        {/* 액션 버튼 */}
-        <div className="flex justify-center">
-          {!quizState.showExplanation ? (
-            <button
-              onClick={handleSubmitAnswer}
-              disabled={quizState.selectedAnswer === null}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg"
-            >
-              답안 제출
-            </button>
-          ) : (
-            <button
-              onClick={handleNextQuestion}
-              className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg animate-in fade-in duration-300"
-            >
-              {isLastQuestion ? '🎉 완료' : '다음 문제 →'}
-            </button>
+          {/* Options */}
+          <div className="space-y-4 mb-8">
+            {currentQuestion.options.map((option, index) => {
+              const isSelected = quizState.selectedAnswer === index;
+              const isCorrect = index === currentQuestion.correct;
+              const isWrong = quizState.showExplanation && isSelected && !isCorrect;
+              
+              return (
+                <button
+                  key={index}
+                  onClick={() => handleAnswerSelect(index)}
+                  className={`w-full p-5 text-left rounded-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] border-2 font-medium text-lg relative overflow-hidden group ${
+                    quizState.showExplanation
+                      ? isCorrect
+                        ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-200 shadow-lg'
+                        : isWrong
+                        ? 'border-red-400 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 shadow-lg'
+                        : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                      : isSelected
+                      ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 shadow-lg'
+                      : 'border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-25 dark:hover:bg-blue-950/20'
+                  }`}
+                  disabled={quizState.showExplanation}
+                >
+                  {/* Option Letter */}
+                  <div className="flex items-center space-x-4">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm border-2 transition-all ${
+                      quizState.showExplanation
+                        ? isCorrect
+                          ? 'bg-emerald-500 border-emerald-500 text-white'
+                          : isWrong
+                          ? 'bg-red-500 border-red-500 text-white'
+                          : 'bg-gray-300 dark:bg-gray-600 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300'
+                        : isSelected
+                        ? 'bg-blue-500 border-blue-500 text-white'
+                        : 'bg-transparent border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 group-hover:border-blue-400 group-hover:text-blue-600'
+                    }`}>
+                      {String.fromCharCode(65 + index)}
+                    </div>
+                    <span className="flex-1">{option}</span>
+                    {quizState.showExplanation && isCorrect && (
+                      <div className="text-emerald-500 font-bold text-xl">✓</div>
+                    )}
+                    {quizState.showExplanation && isWrong && (
+                      <div className="text-red-500 font-bold text-xl">✗</div>
+                    )}
+                  </div>
+                  
+                  {/* Hover effect background */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 to-indigo-400/0 group-hover:from-blue-400/10 group-hover:to-indigo-400/10 transition-all duration-300 rounded-xl"></div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Explanation */}
+          {quizState.showExplanation && (
+            <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl animate-in slide-in-from-top-4 duration-500 shadow-lg">
+              <div className="flex items-start space-x-3">
+                <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <span className="text-white text-lg">💡</span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-blue-800 dark:text-blue-200 mb-3 text-lg">해설</h3>
+                  <p className="text-blue-700 dark:text-blue-300 leading-relaxed text-base">{currentQuestion.explanation}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex justify-center">
+            {!quizState.showExplanation ? (
+              <button
+                onClick={handleSubmitAnswer}
+                disabled={quizState.selectedAnswer === null}
+                className="px-8 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 disabled:from-gray-300 disabled:to-gray-400 disabled:text-gray-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-xl font-bold text-lg"
+              >
+                <span className="flex items-center space-x-2">
+                  <span>📝</span>
+                  <span>답안 제출</span>
+                </span>
+              </button>
+            ) : (
+              <button
+                onClick={handleNextQuestion}
+                className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl hover:from-emerald-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-xl animate-in fade-in duration-500 font-bold text-lg"
+              >
+                <span className="flex items-center space-x-2">
+                  {isLastQuestion ? (
+                    <>
+                      <span>🎉</span>
+                      <span>완료</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>➡️</span>
+                      <span>다음 문제</span>
+                    </>
+                  )}
+                </span>
+              </button>
+            )}
+          </div>
+
+          {/* Score Display */}
+          {quizState.showExplanation && (
+            <div className="mt-6 flex justify-center space-x-6">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                  {quizState.score}
+                </div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">정답</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">
+                  {quizState.currentQuestionIndex + 1 - quizState.score}
+                </div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">오답</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                  {Math.round((quizState.score / (quizState.currentQuestionIndex + 1)) * 100)}%
+                </div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">정답률</div>
+              </div>
+            </div>
           )}
         </div>
-
-        {/* 점수 표시 */}
-        {quizState.showExplanation && (
-          <div className="mt-4 text-center text-gray-600 dark:text-gray-400">
-            현재 점수: {quizState.score} / {quizState.currentQuestionIndex + 1}
-          </div>
-        )}
       </div>
     </div>
   );
