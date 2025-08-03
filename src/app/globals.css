@@ -192,19 +192,25 @@ body {
   overflow-x: hidden;
 }
 
-/* Focus styles */
+/* Focus styles - Enhanced accessibility */
 *:focus-visible {
-  outline: 2px solid var(--primary-500);
+  outline: 2px solid #2563eb; /* primary-600 for better contrast */
   outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
 }
 
-/* Selection styles */
+html.dark *:focus-visible {
+  outline: 2px solid #60a5fa; /* primary-400 for dark mode */
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2);
+}
+
+/* Selection styles - WCAG AA compliant contrast ratios */
 ::selection {
-  background-color: var(--primary-100);
-  color: var(--primary-900);
+  background-color: #2563eb; /* primary-600 */
+  color: #ffffff; /* white for high contrast */
 }
 
 html.dark ::selection {
-  background-color: var(--primary-900);
-  color: var(--primary-100);
+  background-color: #3b82f6; /* primary-500 */
+  color: #ffffff; /* white for high contrast */
 }
