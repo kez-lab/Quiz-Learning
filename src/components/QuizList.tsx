@@ -57,7 +57,7 @@ export default function QuizList({ onSelectQuiz }: QuizListProps) {
           return (
             <div
               key={quiz.id}
-              className={`group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 p-6 transform hover:scale-105 hover:-translate-y-2 border border-gray-200/50 dark:border-gray-700/50 overflow-hidden ${
+              className={`group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300 p-6 transform hover:scale-[1.02] hover:-translate-y-1 border border-gray-200/50 dark:border-gray-700/50 overflow-hidden ${
                 isCompleted 
                   ? 'ring-2 ring-emerald-200 dark:ring-emerald-700 bg-gradient-to-br from-emerald-50 via-white to-blue-50 dark:from-emerald-950 dark:via-gray-800 dark:to-blue-950' 
                   : 'hover:bg-gradient-to-br hover:from-blue-50 hover:via-white hover:to-indigo-50 dark:hover:from-blue-950 dark:hover:via-gray-800 dark:hover:to-indigo-950'

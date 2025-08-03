@@ -95,9 +95,10 @@
     background-color: rgb(107 114 128);
   }
   
-  /* Blur backdrop */
+  /* Optimized blur backdrop - reduced blur for performance */
   .backdrop-blur-custom {
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(8px);
+    will-change: auto;
   }
   
   /* Text clamp */
@@ -126,17 +127,39 @@
     background: linear-gradient(135deg, var(--success-500) 0%, var(--success-600) 100%);
   }
   
-  /* Glass morphism */
+  /* Glass morphism - optimized for performance */
   .glass {
     background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    will-change: auto;
   }
   
   .glass-dark {
     background: rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    will-change: auto;
+  }
+  
+  /* Performance optimizations */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+  
+  .smooth-scroll {
+    scroll-behavior: smooth;
+  }
+  
+  /* Reduce motion for users with motion sensitivity */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
@@ -177,7 +200,7 @@ html {
   background-color: #ffffff;
   color: #171717;
   transition: background-color 0.3s ease, color 0.3s ease;
-  scroll-behavior: smooth;
+  /* Removed scroll-behavior: smooth for better performance */
 }
 
 html.dark {
@@ -190,6 +213,9 @@ body {
   color: inherit;
   min-height: 100vh;
   overflow-x: hidden;
+  /* Performance optimizations */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 /* Focus styles - Enhanced accessibility */
