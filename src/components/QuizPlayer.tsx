@@ -8,12 +8,16 @@ import {
   trackQuestionAnswered, 
   trackQuizCompleted, 
   trackQuizAbandoned, 
-  trackExplanationViewed 
+  trackExplanationViewed,
+  trackStartQuiz,
+  trackFinishQuiz,
+  trackViewExplanation
 } from '@/utils/analytics';
+import { getCurrentUser } from '@/utils/storage';
 
 interface QuizPlayerProps {
   quizId: number;
-  onComplete: () => void;
+  onComplete: (userAnswers: number[], score: number, timeTaken: number) => void;
   onBack: () => void;
 }
 
@@ -29,11 +33,20 @@ export default function QuizPlayer({ quizId, onComplete, onBack }: QuizPlayerPro
   });
   const [questionStartTime, setQuestionStartTime] = useState(Date.now());
   const [quizStartTime] = useState(Date.now());
+  const [explanationViewed, setExplanationViewed] = useState(false);
 
   useEffect(() => {
     const quizzes = quizzesData as Quiz[];
     const foundQuiz = quizzes.find(q => q.id === quizId);
     setQuiz(foundQuiz || null);
+    
+    // 퀴즈 시작 이벤트 트래킹
+    if (foundQuiz) {
+      const userId = getCurrentUser();
+      if (userId) {
+        trackStartQuiz(userId, quizId, foundQuiz.title);
+      }
+    }
   }, [quizId]);
 
   // 해설이 표시될 때 이벤트 추적
@@ -83,23 +96,33 @@ export default function QuizPlayer({ quizId, onComplete, onBack }: QuizPlayerPro
     if (isLastQuestion) {
       // 퀴즈 완료 시 진도 저장
       const completionTime = Math.floor((Date.now() - quizStartTime) / 1000);
+      const finalUserAnswers = quizState.userAnswers; // 이미 handleSubmitAnswer에서 추가됨
+      const finalScore = quizState.score; // 이미 handleSubmitAnswer에서 계산됨
+      
       const progress = {
         quizId: quizId,
         completedQuestions: Array.from({ length: quiz!.questions.length }, (_, i) => i),
-        score: quizState.score,
+        score: finalScore,
         completedAt: new Date(),
       };
       
       // 이벤트 트래킹
-      trackQuizCompleted(quizId, quizState.score, quiz!.questions.length, completionTime);
+      trackQuizCompleted(quizId, finalScore, quiz!.questions.length, completionTime);
+      
+      // 실험용 finish_quiz 이벤트
+      const userId = getCurrentUser();
+      if (userId) {
+        trackFinishQuiz(userId, quizId, finalScore, quiz!.questions.length, completionTime);
+      }
       
       saveProgress(progress);
-      onComplete();
+      onComplete(finalUserAnswers, finalScore, completionTime);
       return;
     }
 
     // 다음 문제로 이동 시 시간 리셋
     setQuestionStartTime(Date.now());
+    setExplanationViewed(false); // 해설 조회 상태 리셋
     setQuizState(prev => ({
       ...prev,
       currentQuestionIndex: prev.currentQuestionIndex + 1,
@@ -221,18 +244,42 @@ export default function QuizPlayer({ quizId, onComplete, onBack }: QuizPlayerPro
             })}
           </div>
 
-          {/* Explanation */}
+          {/* Explanation Section - 단계별 표시 */}
           {quizState.showExplanation && (
-            <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl animate-in slide-in-from-top-4 duration-500 shadow-lg">
-              <div className="flex items-start space-x-3">
-                <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-lg">💡</span>
+            <div className="mb-8 space-y-4">
+              {/* 해설 버튼 */}
+              {!explanationViewed && (
+                <div className="text-center">
+                  <button
+                    onClick={() => {
+                      setExplanationViewed(true);
+                      const userId = getCurrentUser();
+                      const isWrong = quizState.selectedAnswer !== currentQuestion.correct;
+                      if (userId) {
+                        trackViewExplanation(userId, quizId, currentQuestion.id, isWrong);
+                      }
+                    }}
+                    className="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl hover:from-amber-600 hover:to-orange-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-medium"
+                  >
+                    💡 해설 보기
+                  </button>
                 </div>
-                <div>
-                  <h3 className="font-bold text-blue-800 dark:text-blue-200 mb-3 text-lg">해설</h3>
-                  <p className="text-blue-700 dark:text-blue-300 leading-relaxed text-base">{currentQuestion.explanation}</p>
+              )}
+              
+              {/* 해설 내용 */}
+              {explanationViewed && (
+                <div className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl animate-in slide-in-from-top-4 duration-500 shadow-lg">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <span className="text-white text-lg">💡</span>
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-blue-800 dark:text-blue-200 mb-3 text-lg">해설</h3>
+                      <p className="text-blue-700 dark:text-blue-300 leading-relaxed text-base">{currentQuestion.explanation}</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
@@ -282,13 +329,13 @@ export default function QuizPlayer({ quizId, onComplete, onBack }: QuizPlayerPro
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">
-                  {quizState.currentQuestionIndex + 1 - quizState.score}
+                  {quizState.userAnswers.length - quizState.score}
                 </div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">오답</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                  {Math.round((quizState.score / (quizState.currentQuestionIndex + 1)) * 100)}%
+                  {quizState.userAnswers.length > 0 ? Math.round((quizState.score / quizState.userAnswers.length) * 100) : 0}%
                 </div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">정답률</div>
               </div>
