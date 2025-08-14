@@ -17,8 +17,7 @@ import {
 } from '@/utils/storage';
 import { 
   initializeUserData, 
-  getUserAvailableQuizzes, 
-  getQuizAssignmentInfo 
+  getUserAvailableQuizzes
 } from '@/utils/userQuizData';
 import { 
   trackUserLoggedIn, 
@@ -160,7 +159,7 @@ export default function Home() {
                 </div>
               )}
               
-              {currentView !== 'list' && currentView !== 'login' && (
+              {currentView !== 'list' && (
                 <button
                   onClick={handleBackToList}
                   className="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center space-x-1"
