@@ -1,25 +1,102 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import QuizList from '@/components/QuizList';
 import QuizPlayer from '@/components/QuizPlayer';
 import ArticleViewer from '@/components/ArticleViewer';
+import QuizResult from '@/components/QuizResult';
 import ThemeToggle from '@/components/ThemeToggle';
-import { Quiz } from '@/types/quiz';
-import quizzesData from '@/data/quizzes.json';
+import UserLogin from '@/components/UserLogin';
+import { Quiz, UserData } from '@/types/quiz';
+import { 
+  getCurrentUser, 
+  setCurrentUser, 
+  clearCurrentUser, 
+  getUserData, 
+  saveUserData 
+} from '@/utils/storage';
+import { 
+  initializeUserData, 
+  getUserAvailableQuizzes, 
+  getQuizAssignmentInfo 
+} from '@/utils/userQuizData';
+import { 
+  trackUserLoggedIn, 
+  trackUserLoggedOut, 
+  trackQuizListViewed 
+} from '@/utils/analytics';
 
-type ViewState = 'list' | 'article' | 'quiz';
+type ViewState = 'login' | 'list' | 'article' | 'quiz' | 'result';
 
 export default function Home() {
   const [selectedQuizId, setSelectedQuizId] = useState<number | null>(null);
-  const [currentView, setCurrentView] = useState<ViewState>('list');
-  
-  const quizzes = quizzesData as Quiz[];
-  const selectedQuiz = selectedQuizId ? quizzes.find(q => q.id === selectedQuizId) : null;
+  const [currentView, setCurrentView] = useState<ViewState>('login');
+  const [currentUser, setCurrentUserState] = useState<UserData | null>(null);
+  const [userQuizzes, setUserQuizzes] = useState<Quiz[]>([]);
+  const [quizResult, setQuizResult] = useState<{
+    userAnswers: number[];
+    score: number;
+    timeTaken: number;
+  } | null>(null);
+
+  // 초기화: 로그인된 사용자 확인
+  useEffect(() => {
+    const savedUserId = getCurrentUser();
+    if (savedUserId) {
+      handleUserLogin(savedUserId);
+    }
+  }, []);
+
+  const selectedQuiz = selectedQuizId && userQuizzes.length > 0 
+    ? userQuizzes.find(q => q.id === selectedQuizId) 
+    : null;
+
+  // 사용자 로그인 처리
+  const handleUserLogin = (userId: string) => {
+    let userData = getUserData(userId);
+    const isReturning = !!userData;
+    
+    if (!userData) {
+      // 새 사용자 데이터 초기화
+      userData = initializeUserData(userId);
+      saveUserData(userData);
+    } else {
+      // 기존 사용자 마지막 로그인 시간 업데이트
+      userData.lastLoginAt = new Date();
+      saveUserData(userData);
+    }
+    
+    const availableQuizzes = getUserAvailableQuizzes(userData);
+    
+    setCurrentUser(userId);
+    setCurrentUserState(userData);
+    setUserQuizzes(availableQuizzes);
+    setCurrentView('list');
+    
+    // Analytics 이벤트 전송
+    trackUserLoggedIn(userId, isReturning);
+    trackQuizListViewed(userId, availableQuizzes.length);
+  };
+
+  // 로그아웃 처리
+  const handleLogout = () => {
+    const userId = currentUser?.userId;
+    
+    clearCurrentUser();
+    setCurrentUserState(null);
+    setUserQuizzes([]);
+    setSelectedQuizId(null);
+    setCurrentView('login');
+    
+    // Analytics 이벤트 전송
+    if (userId) {
+      trackUserLoggedOut(userId);
+    }
+  };
 
   const handleSelectQuiz = (quizId: number) => {
     setSelectedQuizId(quizId);
-    const quiz = quizzes.find(q => q.id === quizId);
+    const quiz = userQuizzes.find(q => q.id === quizId);
     // 아티클 URL이 있으면 아티클 뷰로, 없으면 바로 퀴즈로
     setCurrentView(quiz?.articleUrl ? 'article' : 'quiz');
   };
@@ -33,10 +110,20 @@ export default function Home() {
     setCurrentView('list');
   };
 
-  const handleQuizComplete = () => {
-    setCurrentView('list');
-    setSelectedQuizId(null);
+  const handleQuizComplete = (userAnswers: number[], score: number, timeTaken: number) => {
+    setQuizResult({ userAnswers, score, timeTaken });
+    setCurrentView('result');
   };
+
+  const handleRetryQuiz = () => {
+    setQuizResult(null);
+    setCurrentView('quiz');
+  };
+
+  // 로그인 화면 표시
+  if (currentView === 'login') {
+    return <UserLogin onLogin={handleUserLogin} />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-slate-900 dark:to-gray-800 transition-colors duration-300">
@@ -61,7 +148,19 @@ export default function Home() {
             
             {/* Navigation & Theme Toggle */}
             <div className="flex items-center space-x-4">
-              {currentView !== 'list' && (
+              {/* User Info */}
+              {currentUser && (
+                <div className="hidden sm:flex items-center space-x-2 text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">안녕하세요,</span>
+                  <span className="font-medium text-blue-600 dark:text-blue-400">{currentUser.userId}</span>
+                  <span className="text-gray-400">|</span>
+                  <span className="text-gray-500 dark:text-gray-400">
+                    {userQuizzes.length}개 퀴즈
+                  </span>
+                </div>
+              )}
+              
+              {currentView !== 'list' && currentView !== 'login' && (
                 <button
                   onClick={handleBackToList}
                   className="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center space-x-1"
@@ -70,6 +169,17 @@ export default function Home() {
                   <span className="hidden sm:inline">홈으로</span>
                 </button>
               )}
+              
+              {/* Logout Button */}
+              {currentUser && (
+                <button
+                  onClick={handleLogout}
+                  className="px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
+                >
+                  로그아웃
+                </button>
+              )}
+              
               <ThemeToggle />
             </div>
           </div>
@@ -86,6 +196,20 @@ export default function Home() {
             <p className="text-lg text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
               최신 기술 아티클을 읽고 퀴즈로 실력을 검증해보세요
             </p>
+            
+            {/* User-specific info */}
+            {currentUser && (
+              <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl border border-white/20 dark:border-gray-700/50 p-4 mb-6 max-w-md mx-auto">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  <span className="font-medium text-blue-600 dark:text-blue-400">{currentUser.userId}</span>님을 위한 
+                  <span className="font-medium text-indigo-600 dark:text-indigo-400"> {userQuizzes.length}개</span>의 퀴즈가 준비되어 있습니다
+                </p>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  마지막 로그인: {currentUser.lastLoginAt.toLocaleString('ko-KR')}
+                </div>
+              </div>
+            )}
+            
             <div className="flex justify-center space-x-8 text-sm text-gray-500 dark:text-gray-400">
               <div className="flex items-center space-x-2">
                 <span className="w-2 h-2 bg-green-500 rounded-full"></span>
@@ -104,7 +228,10 @@ export default function Home() {
         )}
 
         {currentView === 'list' && (
-          <QuizList onSelectQuiz={handleSelectQuiz} />
+          <QuizList 
+            onSelectQuiz={handleSelectQuiz} 
+            availableQuizzes={userQuizzes}
+          />
         )}
         
         {currentView === 'article' && selectedQuiz && (
@@ -120,6 +247,17 @@ export default function Home() {
             quizId={selectedQuizId} 
             onComplete={handleQuizComplete}
             onBack={() => setCurrentView(selectedQuiz?.articleUrl ? 'article' : 'list')}
+          />
+        )}
+        
+        {currentView === 'result' && selectedQuiz && quizResult && (
+          <QuizResult 
+            quiz={selectedQuiz}
+            userAnswers={quizResult.userAnswers}
+            score={quizResult.score}
+            timeTaken={quizResult.timeTaken}
+            onBack={handleBackToList}
+            onRetry={handleRetryQuiz}
           />
         )}
       </div>

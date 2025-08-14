@@ -33,7 +33,6 @@ export default function QuizPlayer({ quizId, onComplete, onBack }: QuizPlayerPro
   });
   const [questionStartTime, setQuestionStartTime] = useState(Date.now());
   const [quizStartTime] = useState(Date.now());
-  const [explanationViewed, setExplanationViewed] = useState(false);
 
   useEffect(() => {
     const quizzes = quizzesData as Quiz[];
@@ -54,8 +53,15 @@ export default function QuizPlayer({ quizId, onComplete, onBack }: QuizPlayerPro
     if (quizState.showExplanation && quiz) {
       const currentQuestion = quiz.questions[quizState.currentQuestionIndex];
       trackExplanationViewed(quizId, currentQuestion.id);
+      
+      // 실험용 view_explanation 이벤트
+      const userId = getCurrentUser();
+      const isWrong = quizState.selectedAnswer !== currentQuestion.correct;
+      if (userId) {
+        trackViewExplanation(userId, quizId, currentQuestion.id, isWrong);
+      }
     }
-  }, [quizState.showExplanation, quizState.currentQuestionIndex, quizId, quiz]);
+  }, [quizState.showExplanation, quizState.currentQuestionIndex, quizId, quiz, quizState.selectedAnswer]);
 
   if (!quiz) {
     return <div>퀴즈를 찾을 수 없습니다.</div>;
@@ -122,7 +128,6 @@ export default function QuizPlayer({ quizId, onComplete, onBack }: QuizPlayerPro
 
     // 다음 문제로 이동 시 시간 리셋
     setQuestionStartTime(Date.now());
-    setExplanationViewed(false); // 해설 조회 상태 리셋
     setQuizState(prev => ({
       ...prev,
       currentQuestionIndex: prev.currentQuestionIndex + 1,
@@ -244,42 +249,18 @@ export default function QuizPlayer({ quizId, onComplete, onBack }: QuizPlayerPro
             })}
           </div>
 
-          {/* Explanation Section - 단계별 표시 */}
+          {/* Explanation */}
           {quizState.showExplanation && (
-            <div className="mb-8 space-y-4">
-              {/* 해설 버튼 */}
-              {!explanationViewed && (
-                <div className="text-center">
-                  <button
-                    onClick={() => {
-                      setExplanationViewed(true);
-                      const userId = getCurrentUser();
-                      const isWrong = quizState.selectedAnswer !== currentQuestion.correct;
-                      if (userId) {
-                        trackViewExplanation(userId, quizId, currentQuestion.id, isWrong);
-                      }
-                    }}
-                    className="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl hover:from-amber-600 hover:to-orange-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-medium"
-                  >
-                    💡 해설 보기
-                  </button>
+            <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl animate-in slide-in-from-top-4 duration-500 shadow-lg">
+              <div className="flex items-start space-x-3">
+                <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <span className="text-white text-lg">💡</span>
                 </div>
-              )}
-              
-              {/* 해설 내용 */}
-              {explanationViewed && (
-                <div className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl animate-in slide-in-from-top-4 duration-500 shadow-lg">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <span className="text-white text-lg">💡</span>
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-blue-800 dark:text-blue-200 mb-3 text-lg">해설</h3>
-                      <p className="text-blue-700 dark:text-blue-300 leading-relaxed text-base">{currentQuestion.explanation}</p>
-                    </div>
-                  </div>
+                <div>
+                  <h3 className="font-bold text-blue-800 dark:text-blue-200 mb-3 text-lg">해설</h3>
+                  <p className="text-blue-700 dark:text-blue-300 leading-relaxed text-base">{currentQuestion.explanation}</p>
                 </div>
-              )}
+              </div>
             </div>
           )}
 

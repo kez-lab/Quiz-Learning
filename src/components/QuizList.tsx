@@ -8,10 +8,11 @@ import { trackQuizListViewed, trackArticleCardClicked } from '@/utils/analytics'
 
 interface QuizListProps {
   onSelectQuiz: (quizId: number) => void;
+  availableQuizzes?: Quiz[];
 }
 
-export default function QuizList({ onSelectQuiz }: QuizListProps) {
-  const quizzes = quizzesData as Quiz[];
+export default function QuizList({ onSelectQuiz, availableQuizzes }: QuizListProps) {
+  const quizzes = availableQuizzes || quizzesData as Quiz[];
   const [userProgress, setUserProgress] = useState<UserProgress[]>([]);
 
   useEffect(() => {

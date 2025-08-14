@@ -13,6 +13,7 @@ export interface Quiz {
   description: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   articleUrl?: string;
+  userId: string; // 이 퀴즈와 매칭된 사용자 ID
   questions: Question[];
 }
 
@@ -30,4 +31,12 @@ export interface QuizState {
   showExplanation: boolean;
   userAnswers: number[];
   score: number;
+}
+
+export interface UserData {
+  userId: string;
+  availableQuizzes: number[];
+  progress: UserProgress[];
+  createdAt: Date;
+  lastLoginAt: Date;
 }
