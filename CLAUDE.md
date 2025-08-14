@@ -1,8 +1,8 @@
-# Quiz Learning - AI 개발 가이드
+# QuizAI - AI 기반 퀴즈 학습 플랫폼 개발 가이드
 
 ## 📋 프로젝트 개요
 
-Quiz Learning은 Android Compose와 관련된 기술 아티클 기반의 퀴즈 학습 플랫폼입니다. 사용자는 외부 기술 아티클을 읽고 관련 퀴즈를 풀며 학습할 수 있습니다.
+QuizAI는 AI 기술을 활용한 맞춤형 퀴즈 학습 플랫폼입니다. 사용자는 AI가 생성한 퀴즈를 통해 효과적으로 학습하고, 개인화된 피드백을 받을 수 있습니다.
 
 ### 🛠 기술 스택
 - **Frontend**: Next.js 15.4.5, React 19, TypeScript

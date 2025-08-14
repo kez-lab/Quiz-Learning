@@ -133,14 +133,14 @@ export default function Home() {
             {/* Logo & Title */}
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg transform rotate-3 hover:rotate-0 transition-transform duration-300">
-                <span className="text-xl font-bold text-white">Q</span>
+                <span className="text-xl font-bold text-white">🤖</span>
               </div>
               <div>
                 <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
-                  QuizDev
+                  QuizAI
                 </h1>
                 <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
-                  개발자를 위한 학습 플랫폼
+                  AI 기반 퀴즈 학습 플랫폼
                 </p>
               </div>
             </div>
@@ -190,10 +190,10 @@ export default function Home() {
         {currentView === 'list' && (
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent mb-4">
-              📚 개발자 아티클 퀴즈
+              🤖 AI 퀴즈 학습 플랫폼
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
-              최신 기술 아티클을 읽고 퀴즈로 실력을 검증해보세요
+              AI가 생성한 맞춤형 퀴즈로 효과적인 학습을 경험해보세요
             </p>
             
             {/* User-specific info */}
@@ -212,7 +212,7 @@ export default function Home() {
             <div className="flex justify-center space-x-8 text-sm text-gray-500 dark:text-gray-400">
               <div className="flex items-center space-x-2">
                 <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                <span>실무 중심</span>
+                <span>맞춤형 학습</span>
               </div>
               <div className="flex items-center space-x-2">
                 <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
@@ -220,7 +220,7 @@ export default function Home() {
               </div>
               <div className="flex items-center space-x-2">
                 <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
-                <span>진도 추적</span>
+                <span>AI 분석</span>
               </div>
             </div>
           </div>

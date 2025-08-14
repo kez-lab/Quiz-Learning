@@ -338,7 +338,7 @@ export default function QuizResult({
           }
         </p>
         <div className="text-sm text-blue-200">
-          지속적인 학습이 개발자의 핵심 역량입니다 💪
+          AI와 함께하는 스마트한 학습이 성공의 열쇠입니다 💪
         </div>
       </div>
     </div>
